@@ -1,0 +1,27 @@
+# Virtual env and common local files
+venv/
+.env
+.env.*
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Streamlit secrets
+.streamlit/secrets.toml
+
+# Output / build / logs
+outputs/
+*.log
+
+# Editor / OS cruft
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*~
+
+# Binary/large files (uncomment if you later want to ignore these)
+# *.npy
+# meta.jsonl
+
