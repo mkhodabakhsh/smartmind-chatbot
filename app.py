@@ -38,15 +38,33 @@ META_PATH = INDEX_DIR / "meta.jsonl"
 EMB_PATH  = INDEX_DIR / "embeddings.npy"
 
 # Load environment variables
+# Load environment variables
 load_dotenv(dotenv_path=PROJECT_ROOT / ".env", override=True)
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
+
+# DEEPSEEK API key: default
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "").strip() or None
+try:
+    if not DEEPSEEK_API_KEY and "st" in globals():
+        DEEPSEEK_API_KEY = st.secrets.get("DEEPSEEK_API_KEY", None)
+except Exception:
+    DEEPSEEK_API_KEY = None
+
 DEEPSEEK_BASE_URL = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com").strip()
 DEEPSEEK_MODEL_ENV = os.getenv("DEEPSEEK_MODEL", "deepseek-reasoner").strip()
+
+# OPENAI API key: fallback only
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
+try:
+    if not OPENAI_API_KEY and "st" in globals():
+        OPENAI_API_KEY = st.secrets.get("OPENAI_API_KEY", None)
+except Exception:
+    OPENAI_API_KEY = None
+
 OPENAI_FALLBACK_MODEL = os.getenv("OPENAI_FALLBACK_MODEL", "gpt-4o-mini").strip()
 
-if not OPENAI_API_KEY:
-    raise RuntimeError("OPENAI_API_KEY is required in .env")
+# Check: at least one API key must exist
+if not (DEEPSEEK_API_KEY or OPENAI_API_KEY):
+    raise RuntimeError("At least one API key must be provided: DEEPSEEK_API_KEY (preferred) or OPENAI_API_KEY (fallback).")
 
 # Constants
 EMBED_MODEL = "text-embedding-3-large"
@@ -673,14 +691,25 @@ if submit_button and user_question.strip():
         
         # Generate answer
         answer = None
-        try:
-            if DEEPSEEK_API_KEY:
+
+        # Prefer DeepSeek
+        if DEEPSEEK_API_KEY:
+            try:
                 answer = call_deepseek(system_prompt, user_prompt)
-        except:
-            pass
-        
-        if answer is None:
-            answer = call_openai_fallback(system_prompt, user_prompt)
+            except Exception as e:
+                st.warning(f"DeepSeek API failed: {e}")
+
+        # Fallback to OpenAI if DeepSeek failed or key missing
+        if (answer is None or not answer.strip()) and OPENAI_API_KEY:
+            try:
+                answer = call_openai_fallback(system_prompt, user_prompt)
+            except Exception as e:
+                st.error(f"OpenAI fallback failed: {e}")
+                answer = "عذراً، لم أتمكن من الحصول على إجابة من أي مصدر."
+
+        # Final cleanup
+        answer = clean_answer(answer or "لا أستطيع الإجابة اعتماداً على المستندات المزوّدة.")
+
         
         spinner2.empty()
         answer = clean_answer(answer)
