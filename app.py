@@ -38,7 +38,6 @@ META_PATH = INDEX_DIR / "meta.jsonl"
 EMB_PATH  = INDEX_DIR / "embeddings.npy"
 
 # Load environment variables
-# Load environment variables
 load_dotenv(dotenv_path=PROJECT_ROOT / ".env", override=True)
 
 # DEEPSEEK API key: default
@@ -86,249 +85,185 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS (kept from original)
+# ---------------------------
+# UI CSS 
+# ---------------------------
 st.markdown("""
 <style>
-/* Hide Streamlit elements */
-.stDeployButton {display:none;}
-footer {visibility: hidden;}
-.stApp > header {visibility: hidden;}
-#MainMenu {visibility: hidden;}
-
-/* RTL Support */
-html, body, [class*="css"] {
+/* Force entire page and Streamlit containers to be whitish and dark text */
+html, body, .stApp, .main, .block-container, .reportview-container, .viewerBadge_container, .css-1y4p8pa, .css-1outpf7, .css-18e3th9 {
+    background: #ffffff !important;
+    color: #0b0b0b !important;
     direction: rtl;
-    text-align: right;
 }
+
+/* Hide Streamlit default chrome for a clean look */
+.stApp > header { visibility: hidden; }
+footer { visibility: hidden; }
+#MainMenu { visibility: hidden; }
 
 /* Container styling */
 .block-container {
-    padding-top: 2rem;
-    padding-bottom: 1rem;
-    max-width: 1000px;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+    max-width: 1100px;
     margin: 0 auto;
 }
 
-/* Header styling */
+/* Main header card */
 .main-header {
     text-align: center;
-    margin-bottom: 3rem;
-    padding: 2.5rem 1rem;
-    background: linear-gradient(135deg, #f8fffe 0%, #e8f4f2 100%);
-    border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+    padding: 18px 12px;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 8px 30px rgba(16,24,40,0.06);
+    border: 1px solid rgba(16,24,40,0.04);
 }
 
+/* Title styling */
 .main-title {
-    font-size: 3rem;
+    font-size: 28px;
     font-weight: 700;
-    color: #2c5530;
-    margin: 1rem 0;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-    letter-spacing: 1px;
-}
-
-.logo-image {
-    width: 120px;
-    height: auto;
-    margin-bottom: 1rem;
+    color: #0b0b0b;
+    margin: 6px 0;
 }
 
 /* Tips section */
 .tips-box {
-    background: linear-gradient(135deg, #e8f4f8 0%, #f0f9ff 100%);
-    padding: 1.5rem;
-    border-radius: 15px;
-    margin: 2rem 0;
-    border-right: 5px solid #2c5530;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    background: #ffffff;
+    padding: 14px;
+    border-radius: 12px;
+    margin: 0.8rem 0;
+    border: 1px solid rgba(16,24,40,0.04);
+    box-shadow: 0 6px 20px rgba(16,24,40,0.03);
+    color: #0b0b0b;
 }
+.tips-title { font-size: 1rem; font-weight:700; color: #0b0b0b; margin-bottom:8px; }
+.tips-content { font-size: 0.98rem; color: #222; line-height: 1.6; }
 
-.tips-title {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #2c5530;
-    margin-bottom: 1rem;
-}
-
-.tips-content {
-    font-size: 1rem;
-    color: #444;
-    line-height: 1.6;
-}
-
-/* Chat section */
-.chat-title {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #2c5530;
-    text-align: center;
-    margin: 2rem 0 1rem 0;
-}
-
+/* Chat container */
+.chat-title { font-size:20px; font-weight:700; color:#0b0b0b; text-align:center; margin:10px 0 8px 0; }
 .chat-container {
-    max-height: 500px;
+    max-height: 560px;
     overflow-y: auto;
-    margin-bottom: 2rem;
-    padding: 1.5rem;
-    background: #fafafa;
-    border-radius: 15px;
-    border: 1px solid #e0e0e0;
+    margin-bottom: 1rem;
+    padding: 12px;
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid rgba(16,24,40,0.04);
+    box-shadow: 0 6px 20px rgba(16,24,40,0.03);
 }
 
-/* Chat bubbles - both on right side with icons */
+/* Chat bubbles */
 .chat-bubble {
-    max-width: 80%;
-    margin: 1rem 0;
-    padding: 1.2rem 1.5rem;
-    border-radius: 20px;
+    max-width: 82%;
+    margin: 12px 0;
+    padding: 12px 14px;
+    border-radius: 14px;
     float: right;
     clear: both;
-    font-size: 1.1rem;
+    font-size: 1rem;
     line-height: 1.6;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 6px 18px rgba(16,24,40,0.03);
     word-wrap: break-word;
     display: flex;
     align-items: flex-start;
     gap: 12px;
+    background: #ffffff;
+    color: #0b0b0b;
+    border: 1px solid rgba(16,24,40,0.03);
 }
 
 .user-bubble {
-    background: linear-gradient(135deg, #b0b0b0, #999);
-    color: white;
-    border-radius: 20px 20px 5px 20px;
-    margin-left: 15%;
+    background: #fbfbfb;
+    border-radius: 14px 14px 6px 14px;
+    margin-left: 12%;
+    color: #0b0b0b;
 }
 
 .smartmind-bubble {
-    background: linear-gradient(135deg, #66bb6a, #4caf50);
-    color: white;
-    border-radius: 20px 20px 5px 20px;
-    margin-left: 10%;
-    margin-top: 0.5rem;
+    background: #ffffff;
+    border-radius: 14px 14px 6px 14px;
+    margin-left: 8%;
+    margin-top: 6px;
+    color: #0b0b0b;
+    border-left: 4px solid rgba(10,10,10,0.04);
 }
 
-.chat-icon {
-    font-size: 1.5rem;
-    min-width: 1.5rem;
-    margin-top: 2px;
-    opacity: 0.9;
-}
-
-.chat-content {
-    flex: 1;
-}
-
-.bubble-label {
-    font-size: 0.9rem;
-    font-weight: bold;
-    margin-bottom: 0.8rem;
-    opacity: 0.9;
-}
-
-.chat-clear {
-    clear: both;
-    height: 1rem;
-}
+.chat-icon { font-size: 1.4rem; min-width: 1.4rem; margin-top:2px; opacity:0.95; }
+.chat-content { flex: 1; }
+.bubble-label { font-size:0.95rem; font-weight:700; margin-bottom:6px; color:#0b0b0b; }
+.chat-clear { clear: both; height: 1rem; }
 
 /* Input styling */
-.input-section {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 15px;
-    border: 2px solid #e0e0e0;
-    margin-bottom: 2rem;
-}
-
+.input-section { background: #ffffff; padding: 12px; border-radius: 12px; border: 1px solid rgba(16,24,40,0.04); margin-bottom:1rem; }
 .stTextInput > div > div > input {
-    border-radius: 25px !important;
-    padding: 1rem 1.5rem !important;
-    border: 2px solid #e0e0e0 !important;
-    font-size: 1.1rem !important;
-    font-family: 'Arial', sans-serif !important;
+    border-radius: 12px !important;
+    padding: 12px 14px !important;
+    border: 1px solid rgba(16,24,40,0.06) !important;
+    font-size: 1rem !important;
+    color: #0b0b0b !important;
+    background: #ffffff !important;
 }
-
 .stTextInput > div > div > input:focus {
-    border-color: #4caf50 !important;
-    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1) !important;
+    border-color: rgba(11,11,11,0.12) !important;
+    box-shadow: 0 6px 20px rgba(16,24,40,0.06) !important;
 }
 
+/* Buttons white with dark text */
 .stButton > button {
-    background: linear-gradient(135deg, #4caf50, #66bb6a) !important;
-    color: white !important;
-    border-radius: 25px !important;
-    border: none !important;
-    padding: 0.8rem 2rem !important;
-    font-weight: bold !important;
-    font-size: 1.1rem !important;
-    transition: all 0.3s ease !important;
+    background: #ffffff !important;
+    color: #0b0b0b !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(16,24,40,0.08) !important;
+    padding: 8px 14px !important;
+    font-weight: 700 !important;
+    font-size: 1rem !important;
+    box-shadow: 0 6px 18px rgba(16,24,40,0.02) !important;
 }
-
 .stButton > button:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 12px 30px rgba(16,24,40,0.06) !important;
 }
 
-/* Custom spinner */
+/* --- SPECIFIC FIX: submit button default (not hover) appearance --- */
+/* Target the form submit button used in the app (data-testid as observed) */
+button[data-testid="stBaseButton-secondaryFormSubmit"],
+button[class*="st-emotion-cache"][data-testid="stBaseButton-secondaryFormSubmit"],
+.stButton>button[aria-label=""] {
+    background: #ffffff !important;
+    color: #0b0b0b !important;
+    border: 1px solid rgba(16,24,40,0.06) !important;
+    box-shadow: 0 6px 18px rgba(16,24,40,0.02) !important;
+    opacity: 1 !important;
+}
+
+/* Also general fallback for any emotion-generated button classes to ensure consistent default look */
+button[class*="st-emotion-cache"] {
+    background: #ffffff !important;
+    color: #0b0b0b !important;
+    border: 1px solid rgba(16,24,40,0.06) !important;
+}
+
+/* Custom spinner - white surface */
 .custom-spinner {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 15px;
-    margin: 1rem 0;
+    display:flex; justify-content:center; align-items:center;
+    padding:12px; background:#ffffff; border-radius:10px; border:1px solid rgba(16,24,40,0.04);
+    color:#0b0b0b;
 }
-
-.spinner-container {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.spinner-text {
-    font-size: 1.1rem;
-    color: #2c5530;
-    font-weight: 500;
-}
-
-.spinner-dots {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.spinner-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background-color: #2c5530;
-    animation: bounce 1.4s ease-in-out infinite both;
-}
-
-.spinner-dot:nth-child(1) { animation-delay: -0.32s; }
-.spinner-dot:nth-child(2) { animation-delay: -0.16s; }
-.spinner-dot:nth-child(3) { animation-delay: 0s; }
-
-@keyframes bounce {
-    0%, 80%, 100% { transform: scale(0); }
-    40% { transform: scale(1); }
-}
+.spinner-dots { display:flex; gap:6px; }
+.spinner-dot { width:10px; height:10px; border-radius:50%; background:#0b0b0b; animation:bounce 1.2s infinite; }
+@keyframes bounce { 0%,80%,100%{transform:scale(0);}40%{transform:scale(1);} }
 
 /* Empty state */
-.empty-state {
-    text-align: center;
-    padding: 4rem 2rem;
-    color: #666;
-    background: #fafafa;
-    border-radius: 15px;
-    margin: 2rem 0;
-}
+.empty-state { text-align:center; padding:28px 18px; color:#0b0b0b; background:#ffffff; border-radius:12px; margin:1rem 0; border:1px solid rgba(16,24,40,0.03); }
 
-.empty-state h3 {
-    color: #2c5530;
-    font-size: 1.8rem;
-    margin-bottom: 1rem;
-}
+/* Keep markdown/code readable */
+code, pre { background:#fbfbfb !important; color:#0b0b0b !important; padding:6px; border-radius:6px; }
+
+/* Ensure images contained */
+img { max-width:100%; height:auto; display:block; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -577,11 +512,11 @@ st.markdown("""
 # Chat section title
 st.markdown('<h2 class="chat-title">💬 اطرح سؤالك</h2>', unsafe_allow_html=True)
 
-# Display chat history
+# Display chat history (chronological order: older first, new appended below)
+st.markdown('<div class="chat-container">', unsafe_allow_html=True)
+
 if st.session_state.chat_history:
-    st.markdown('<div class="chat-container">', unsafe_allow_html=True)
-    
-    for chat in reversed(st.session_state.chat_history):
+    for chat in st.session_state.chat_history:
         # User bubble with icon
         st.markdown(f"""
         <div class="chat-bubble user-bubble">
@@ -594,10 +529,19 @@ if st.session_state.chat_history:
         <div class="chat-clear"></div>
         """, unsafe_allow_html=True)
         
-        # Smart Mind bubble with brain icon
+        # Smart Mind bubble with stylish inline SVG icon
+        assistant_icon_svg = '''
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="14" rx="3" fill="#ffffff" stroke="rgba(10,10,10,0.06)" stroke-width="1"/>
+          <circle cx="8.5" cy="9" r="1.3" fill="#0b0b0b"/>
+          <circle cx="15.5" cy="9" r="1.3" fill="#0b0b0b"/>
+          <path d="M8.8 13c.8.7 2.4.7 3.2 0" stroke="#0b0b0b" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="10" y="2" width="4" height="1.6" rx="0.4" fill="#e9eef2" />
+        </svg>
+        '''
         st.markdown(f"""
         <div class="chat-bubble smartmind-bubble">
-            <div class="chat-icon">🧠</div>
+            <div class="chat-icon">{assistant_icon_svg}</div>
             <div class="chat-content">
                 <div class="bubble-label">سمارت مايند:</div>
                 {chat["answer"]}
@@ -605,8 +549,15 @@ if st.session_state.chat_history:
         </div>
         <div class="chat-clear"></div>
         """, unsafe_allow_html=True)
-    
-    st.markdown('</div>', unsafe_allow_html=True)
+else:
+    st.markdown("""
+    <div class="empty-state">
+        <h3>مرحباً بك في مركز معلومات سمارت مايند الذكي</h3>
+        <p>اطرح سؤالك أعلاه للحصول على إجابة دقيقة من مستنداتنا</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+st.markdown('</div>', unsafe_allow_html=True)
 
 # Input form - matching app copy.py style
 with st.form(key="chat_form", clear_on_submit=True):
@@ -700,7 +651,7 @@ if submit_button and user_question.strip():
                 st.warning(f"DeepSeek API failed: {e}")
 
         # Fallback to OpenAI if DeepSeek failed or key missing
-        if (answer is None or not answer.strip()) and OPENAI_API_KEY:
+        if (answer is None or not str(answer).strip()) and OPENAI_API_KEY:
             try:
                 answer = call_openai_fallback(system_prompt, user_prompt)
             except Exception as e:
@@ -709,24 +660,20 @@ if submit_button and user_question.strip():
 
         # Final cleanup
         answer = clean_answer(answer or "لا أستطيع الإجابة اعتماداً على المستندات المزوّدة.")
-
         
         spinner2.empty()
         answer = clean_answer(answer)
     
-    # Add to chat history
+    # Add to chat history (append keeps chronological order)
     st.session_state.chat_history.append({
         "question": user_question,
         "answer": answer
     })
     
-    st.rerun()
+    # Safely rerun to refresh UI; wrapped to avoid environment-specific crash
+    try:
+        st.rerun()
+    except Exception:
+        pass
 
-# Empty state
-if not st.session_state.chat_history:
-    st.markdown("""
-    <div class="empty-state">
-        <h3>مرحباً بك في مركز معلومات سمارت مايند الذكي</h3>
-        <p>اطرح سؤالك أعلاه للحصول على إجابة دقيقة من مستنداتنا</p>
-    </div>
-    """, unsafe_allow_html=True)
+# End of file
